@@ -1,0 +1,32 @@
+{
+  "name": "gemini-polyglot",
+  "version": "1.2.0",
+  "description": "Compatibility layer for AI agents (Cursor, Claude, Copilot, Codex) in Gemini CLI.",
+  "bin": {
+    "gemini-polyglot": "./scripts/setup.sh"
+  },
+  "files": [
+    "dist/gemini-polyglot.skill",
+    "scripts/setup.sh",
+    "scripts/claude_compat.sh",
+    "scripts/local_context_sync.sh",
+    "references/",
+    "SKILL.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gemini",
+    "cli",
+    "adapter",
+    "cursor",
+    "claude",
+    "copilot",
+    "codex",
+    "ai",
+    "agent"
+  ],
+  "author": "Bruno Andrade",
+  "license": "MIT"
+}

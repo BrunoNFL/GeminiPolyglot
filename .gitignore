@@ -1,0 +1,9 @@
+.DS_Store
+.cursor/
+.github/
+.vscode/
+.idea/
+node_modules/
+dist/
+*.skill
+*.tar.gz

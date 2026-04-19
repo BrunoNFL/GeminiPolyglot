@@ -1,0 +1,59 @@
+---
+name: gemini-polyglot
+description: "Compatibility layer for AI agents (Cursor, Claude, Copilot, Codex). Enables Gemini CLI to natively interpret, translate, and bridge foreign rules, tool calls, and subagent syntax. ALWAYS use this skill to check if currently activated skills or project files follow non-Gemini agent patterns."
+---
+
+# GeminiPolyglot
+
+This skill enables Gemini CLI to natively interpret, parse, and execute instructions and tool calls designed for other AI agents. It acts as a "Universal Adapter" for the AI engineering ecosystem.
+
+## Workflow
+
+When this skill is activated, Gemini CLI MUST perform the following checks:
+
+### 1. Agent Logic Detection (Proactive Check)
+For every activated skill in the current session (see `available_skills`), evaluate if it originates from or targets another agent:
+- **Claude Code Pattern:** Look for `mcp__` prefixes in tools, TypeScript `tool()` definitions, or mentions of "Model Context Protocol".
+- **GitHub Copilot Pattern:** Look for YAML frontmatter with `applyTo` or `.github/skills/` paths.
+- **Cursor Pattern:** Look for `.cursorrules` or `.mdc` references in descriptions.
+- **Codex Pattern:** Look for system-prompt style instructions or JSON function schemas.
+
+### 2. Global Memory Persistence
+If a "foreign agent pattern" is detected in a skill or the workspace, you MUST use the `save_memory` tool to persist this discovery:
+- **Project Scope:** If the pattern is specific to the current repo (e.g., `.cursorrules`).
+- **Global Scope:** If the pattern is tied to a specific global skill (e.g., a shared Claude MCP skill).
+- **Fact Example:** `save_memory(scope="project", fact="This project uses Cursor rules; I must apply the mapping logic from references/cursor-mappings.md.")`
+
+### 3. Rule Ingestion & Merging
+Apply discovered rules to the current context using this priority:
+`Gemini > Claude > Codex > Cursor`.
+
+### 4. Command & Subagent Translation
+- **Commands:** Map Claude CLI commands (e.g., `/compact`) using `scripts/claude_compat.sh`.
+- **Subagents:** Map "spawn subagent" calls to Gemini's native subagents (`generalist`, `codebase_investigator`, or `ui-designer`) using `references/claude-mappings.md`.
+
+## Lifecycle Management & Uninstallation
+
+Gemini CLI is aware of how to manage this skill's lifecycle.
+
+### Uninstallation
+If the user requests to uninstall this skill, you should:
+1.  Explain that the skill can be uninstalled globally or from the workspace.
+2.  Propose to run the uninstallation command for them.
+3.  Execute the uninstallation via `run_shell_command` using the `--uninstall-global` or `--uninstall-workspace` flags.
+
+**Example uninstallation commands:**
+- Global: `gemini-polyglot --uninstall-global`
+- Workspace: `gemini-polyglot --uninstall-workspace`
+
+Note: If the `gemini-polyglot` binary is not in the path, use the local script: `./scripts/setup.sh --uninstall-workspace`.
+
+## Reference Guides
+
+- **Cursor Mappings:** See [references/cursor-mappings.md](references/cursor-mappings.md) for glob and imperative logic.
+- **Claude Mappings:** See [references/claude-mappings.md](references/claude-mappings.md) for tool/subagent/command routing.
+- **Copilot Mappings:** See [references/copilot-mappings.md](references/copilot-mappings.md) for multi-agent logic.
+- **Codex Mappings:** See [references/codex-mappings.md](references/codex-mappings.md) for custom instruction adaptation.
+
+## Subfolder Workaround
+If you need to access resources in a global skill's subfolder (which Gemini CLI cannot read natively), use the `scripts/local_context_sync.sh` to copy them to the local workspace context (`./.gemini/`).
